@@ -28,6 +28,8 @@ int main(int argc, char* argv[])
     YARP_UNUSED(argv);
  
     Network yarp;
+    const int PERIOD = 2;
+    int counter = 0;
  
     /** Creates a ROS node (Used to tag YARP ports with 
      *   mandatory metadata for ROS compatibility) 
@@ -35,7 +37,7 @@ int main(int argc, char* argv[])
     Node node("/yarp/icub");
  
     /* subscribe to topic chatter */
-    Publisher<String> publisher;
+    Publisher<Float64> publisher;
     if (!publisher.topic("/icub_sensory_data")) {
         yCError(CONTROLLER) << "Failed to create publisher to /chatter";
         return -1;
@@ -50,14 +52,21 @@ int main(int argc, char* argv[])
     }
  
     while (true) {
-        /* prepare some data */
-        String adata;
-        adata.data = "Hello from YARP";
+        Float64 adata;
+
+        if (counter % PERIOD == 0){
+            adata.data = 1;
+        } else {
+            adata.data = 0;
+        }
+
         publisher.write(adata);
 
         Float64 bdata;
         subscriber.read(bdata);
         yCInfo(CONTROLLER) << "Received:" << bdata.data;
+
+        counter++;
  
         /* wait some time to avoid flooding with messages */
         yarp::os::Time::delay(loop_delay);

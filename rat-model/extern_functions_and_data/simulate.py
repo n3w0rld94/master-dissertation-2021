@@ -21,16 +21,27 @@ class Mixin7:
 
         self.last_index_read = 0
         self.num_of_cortex_cells = 10
-        self.sub = rospy.Subscriber('icub_sensory_data', String, self.process_input_data)
+        self.sub = rospy.Subscriber('icub_sensory_data', Float64, self.process_input_data)
         self.pub = rospy.Publisher('rat_control_commands', Float64)
         rospy.init_node('neural_model_rat', anonymous=False)
 
-        sim.runSimWithIntervalFunc(1000, self.send_data)
+        sim.runSimWithIntervalFunc(800, self.send_data)
 
 
     def process_input_data(network, data):
+        sensory_data = data.data
+        stimulation = {
+                'conds':{'source':'Input_th'},
+                'cellConds':{'pop':'TH'},
+                'amp':0.0012
+            }
+        print('Input data received' + str(sensory_data))
 
-      print('Input data received' + str(data))
+        if (sensory_data > 0.5):
+            stimulation['amp'] = 0.01
+            sim.net.modifyStims(stimulation)
+        else:
+            sim.net.modifyStims(stimulation)
 
 
     def send_data(self, time):
