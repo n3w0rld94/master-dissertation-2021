@@ -23,7 +23,6 @@ class Network(buildPopulationParameters.Mixin1, buildCellRules.Mixin2,
     """???"""
 
     def __init__(self, has_pd=0, it_num=1, dbs=0, t_sim=1000, seed=None):
-        self.previous_interval = 0
 
         self.pd = has_pd # *** se tem doenca de parkinson. 0 = false, 1 = true
         self.it_num = it_num # *** ??? 

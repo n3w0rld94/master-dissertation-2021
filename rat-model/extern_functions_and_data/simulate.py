@@ -19,6 +19,8 @@ class Mixin7:
 
         sim.create(netParams=self.netParams, simConfig=self.simConfig)
 
+        self.last_index_read = 0
+        self.num_of_cortex_cells = 10
         self.sub = rospy.Subscriber('icub_sensory_data', String, self.process_input_data)
         self.pub = rospy.Publisher('rat_control_commands', Float64)
         rospy.init_node('neural_model_rat', anonymous=False)
@@ -32,51 +34,57 @@ class Mixin7:
 
 
     def send_data(self, time):
-        # Check time
-        self.current_interval = time
 
-        # Collect Data 
+        cortex_spikes = [[],[],[],[],[],[],[],[],[],[]]
         sim.gatherData()
+    
+        num_spikes, cortex_spikes = self.count_and_store_cortex_spikes(cortex_spikes)
 
-        # Variables to calculate ISIs(InterSpikes Interval)
-        one_second_data = [[],[],[],[],[],[],[],[],[],[]]
+        self.last_index_read = len(sim.allSimData['spkid'])
+        mean_firing_rate = num_spikes/self.num_of_cortex_cells
 
-        # Count spikes: cortex neurons        
-        countSpikes = 0
-        for i in range(self.previous_interval,len(sim.allSimData['spkid'])):
-            spike_id = sim.allSimData['spkid'][i]
-            if spike_id >= 50 and spike_id < 60:
-                countSpikes += 1
-                pos = int(spike_id%50)
-                one_second_data[pos].append(sim.allSimData['spkt'][i])
+        spike_variations_mean_across_cells = self.get_mean_spikes_variation(cortex_spikes)
 
-        # Save position for the next second          
-        self.previous_interval = len(sim.allSimData['spkid'])
+        print('Data sent: ' + str(spike_variations_mean_across_cells))
+        self.pub.publish(Float64(data=spike_variations_mean_across_cells))
 
-        # Calculate the average FR (firing rate) of Cortex neurons
-        mean_FR = countSpikes/10.0
 
-        # Calculate ISIs
-        isis_mean = np.zeros(10)
-        isis_std  = np.zeros(10)
-        isis = [[],[],[],[],[],[],[],[],[],[]]
-        for i in range(0,10):
-            for t in range(0,len(one_second_data[i])):
-                if t>0:
-                    diff = one_second_data[i][t]-one_second_data[i][t-1]
-                    isis[i].append(diff)
-            if len(isis[i]) > 0:
-                isis_mean[i] = np.mean(isis[i])
-                isis_std[i] = np.std(isis[i])
+    def count_and_store_cortex_spikes(self, one_second_data):
+        spike_ids = sim.allSimData['spkid']
+        spike_values = sim.allSimData['spkt']
+        num_spikes = 0
+        last_index_read = self.last_index_read
+        
+        for i in range(last_index_read, len(spike_ids)):
+            spike_id = spike_ids[i]
+
+            if self.is_spike_from_cortex(spike_id):
+                num_spikes += 1
+                spike_index = int(spike_id % 50)
+                one_second_data[spike_index].append(spike_values[i])
+        
+        return num_spikes, one_second_data
+
+    def get_mean_spikes_variation(self, cortex_spikes):
+        spike_variations_means = np.zeros(10)
+        spike_variations = [[],[],[],[],[],[],[],[],[],[]]
+        
+        for i in range(0, self.num_of_cortex_cells):
+            cell_spikes = cortex_spikes[i]
+            cell_spike_variations = spike_variations[i]
+
+            for j in range(1, len(cell_spikes)):
+                spike_variation = cell_spikes[j] - cell_spikes[j - 1]
+                cell_spike_variations.append(spike_variation)
+            
+            if len(cell_spike_variations) > 0:
+                spike_variations_means[i] = np.mean(cell_spike_variations)
             else:
-                isis_mean[i] = 0
-                isis_std[i] = 0
+                spike_variations_means[i] = 0
 
         # Calculate the mean values of cortex neurons
-        isis_mean_ctx = np.mean(isis_mean)
-        # isis_std_ctx = np.mean(isis_std)
+        return np.mean(spike_variations_means)
 
+    def is_spike_from_cortex(self, spike_id):
 
-        print('Data sent: ' + str(isis_mean_ctx))
-        self.pub.publish(Float64(data=isis_mean_ctx))
-        print('SENDING DONE')
+        return spike_id >= 50 and spike_id < 60

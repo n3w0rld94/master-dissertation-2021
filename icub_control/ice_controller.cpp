@@ -18,8 +18,7 @@ using yarp::rosmsg::std_msgs::Float64;
 using yarp::rosmsg::std_msgs::String;
  
 namespace {
-    YARP_LOG_COMPONENT(TALKER, "yarp.example.ros.talker");
-    YARP_LOG_COMPONENT(LISTENER, "yarp.example.ros.listener");
+    YARP_LOG_COMPONENT(CONTROLLER, "icub.controller");
     constexpr double loop_delay = 0.1;
 }
  
@@ -30,14 +29,15 @@ int main(int argc, char* argv[])
  
     Network yarp;
  
-    /* creates a node called /yarp/talker */
-    Node node("/yarp/talker");
-    // Node bnode("/yarp/listener");
+    /** Creates a ROS node (Used to tag YARP ports with 
+     *   mandatory metadata for ROS compatibility) 
+    **/
+    Node node("/yarp/icub");
  
     /* subscribe to topic chatter */
     Publisher<String> publisher;
     if (!publisher.topic("/icub_sensory_data")) {
-        yCError(TALKER) << "Failed to create publisher to /chatter";
+        yCError(CONTROLLER) << "Failed to create publisher to /chatter";
         return -1;
     }
 
@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
     /* subscribe to topic chatter */
     Subscriber<Float64> subscriber;
     if (!subscriber.topic("/rat_control_commands")) {
-        yCError(LISTENER) << "Failed to subscriber to /chatter";
+        yCError(CONTROLLER) << "Failed to subscriber to /chatter";
         return -1;
     }
  
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 
         Float64 bdata;
         subscriber.read(bdata);
-        yCInfo(LISTENER) << "Received:" << bdata.data;
+        yCInfo(CONTROLLER) << "Received:" << bdata.data;
  
         /* wait some time to avoid flooding with messages */
         yarp::os::Time::delay(loop_delay);
