@@ -38,7 +38,7 @@ class Mixin7:
         print('Input data received' + str(sensory_data))
 
         if (sensory_data > 0.5):
-            stimulation['amp'] = 0.01
+            stimulation['amp'] = 0.0020
             sim.net.modifyStims(stimulation)
         else:
             sim.net.modifyStims(stimulation)

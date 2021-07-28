@@ -8,7 +8,7 @@ import random
 
 class Mixin4:
 
-    def buildStimParams(self, amp_th=1.2e-3, amp_gpe=3e-3, amp_gpi=3e-3,
+    def buildStimParams(self, amp_th=2.0e-3, amp_gpe=3e-3, amp_gpi=3e-3,
                     amp_stn=0, amp_fs=0, amp_rs=0, amp_dstr=0, amp_istr=0):
         """Parâmetros da corrente elétrica externa aplicada à cada neurônio da
                                                                     região."""
