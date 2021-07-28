@@ -24,13 +24,13 @@ class Network(buildPopulationParameters.Mixin1, buildCellRules.Mixin2,
 
     def __init__(self, has_pd=0, it_num=1, dbs=0, t_sim=1000, seed=None):
 
-        self.pd = has_pd # *** se tem doenca de parkinson. 0 = false, 1 = true
+        self.pd = has_pd # *** Toggles parkinson. 0 = false, 1 = true
         self.it_num = it_num # *** ??? 
 
-        # deep brain stimulation: caso queira simular o dbs.
-        # Nao estah sendo usado isso no momento.
+        # deep brain stimulation: In case you want to use DBS.
+        # DBS is not used at the moment.
         self.dbs = dbs
-        self.t_sim = t_sim # simulation time, self.timeStep from Webots
+        self.t_sim = t_sim # simulation time
 
         #######################################################################  
         # netParams is a dict containing a set of network parameters using a
@@ -49,8 +49,9 @@ class Network(buildPopulationParameters.Mixin1, buildCellRules.Mixin2,
 
         ###################################
         # NETWORK PARAMETERS
+        seed = 3 # SEEDS TO USE: 3 7 9 5 1
         self.buildPopulationParameters()
-        self.buildCellRules()
+        self.buildCellRules(seed)
         self.buildSynMechParams()
         self.buildStimParams()
         self.buildCellConnRules()
