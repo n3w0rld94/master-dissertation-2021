@@ -6,13 +6,17 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
+#include <iostream>
+#include <fstream>
 #include <stdio.h>
+#include <csignal>
 #include <yarp/os/all.h>
 #include <yarp/sig/all.h>
 #include <yarp/dev/all.h>
 #include <yarp/rosmsg/std_msgs/Float64.h>
 #include <yarp/rosmsg/std_msgs/String.h>
 
+using namespace std;
 using namespace yarp::os;
 using namespace yarp::sig;
 using namespace yarp::dev;
@@ -28,6 +32,9 @@ namespace
     YARP_LOG_COMPONENT(CONTROLLER, "icub.controller");
     constexpr double loop_delay = 0.1;
 }
+
+// Create and open a Log file
+ofstream LogFile("../../logs/filename.txt");
 
 Property getPolyDriverOptions()
 {
@@ -80,6 +87,15 @@ void wristFlexion(IPositionControl *pos, bool rest = false)
         pos->positionMove(wristPitchJoint, 90);
         yarp::os::Time::delay(0.5);
     }
+}
+
+void signalHandler( int signum ) {
+    cout << "Interrupt signal (" << signum << ") received.\n";
+
+    // Close the file
+    LogFile.close();
+
+    exit(signum);  
 }
 
 int main(int argc, char *argv[])
@@ -149,6 +165,11 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    char buff[10];
+
+    // Handle interrupt for cleaning up
+    signal(SIGINT, signalHandler);
+
     // Control loop, sensory data stubbed
     while (true)
     {
@@ -167,12 +188,13 @@ int main(int argc, char *argv[])
 
         Float64 bdata;
         subscriber.read(bdata);
-        // yCInfo(CONTROLLER) << "Received:" << bdata.data;
         
         float valueReceived = bdata.data;
-        // printf("received number: %f", valueReceived);
-        printf("%f", valueReceived);
-        printf("\n");
+        printf("%.2f %s", valueReceived, "\n");
+
+        snprintf(buff, sizeof(buff), "%.2f %s", valueReceived, "\n");
+        string buffAsStdStr = buff;
+        LogFile << buffAsStdStr;
 
         bool shouldRest = valueReceived < 240;
         pinch(pos, shouldRest);
