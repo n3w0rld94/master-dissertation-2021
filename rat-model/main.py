@@ -6,8 +6,8 @@ from network import Network # neural network designed through netpyne, to be opt
 
 def main():
 
-    tempo_simulacao = 1000 * 20 # 20 segundos
-    net = Network(t_sim = tempo_simulacao, has_pd = False)
+    simulation_duration = 1000 * 20 # 20 seconds
+    net = Network(t_sim = simulation_duration, has_pd = False)
     net.simulate()
 
 if __name__ == '__main__':
