@@ -6,13 +6,17 @@
  * BSD-3-Clause license. See the accompanying LICENSE file for details.
  */
 
+#include <iostream>
+#include <fstream>
 #include <stdio.h>
+#include <csignal>
 #include <yarp/os/all.h>
 #include <yarp/sig/all.h>
 #include <yarp/dev/all.h>
 #include <yarp/rosmsg/std_msgs/Float64.h>
 #include <yarp/rosmsg/std_msgs/String.h>
 
+using namespace std;
 using namespace yarp::os;
 using namespace yarp::sig;
 using namespace yarp::dev;
@@ -28,6 +32,9 @@ namespace
     YARP_LOG_COMPONENT(CONTROLLER, "icub.controller");
     constexpr double loop_delay = 0.1;
 }
+
+// Create and open a Log file
+ofstream LogFile("../../logs/filename.txt");
 
 Property getPolyDriverOptions()
 {
@@ -82,6 +89,15 @@ void wristFlexion(IPositionControl *pos, bool rest = false)
     }
 }
 
+void signalHandler( int signum ) {
+    cout << "Interrupt signal (" << signum << ") received.\n";
+
+    // Close the file
+    LogFile.close();
+
+    exit(signum);  
+}
+
 int main(int argc, char *argv[])
 {
     YARP_UNUSED(argc);
@@ -130,9 +146,6 @@ int main(int argc, char *argv[])
         con->setControlMode(i, VOCAB_CM_POSITION);
     }
 
-
-    Bottle *flagMessage;
-
     /** Creates a ROS node (Used to tag YARP ports with mandatory metadata for ROS compatibility) **/
     Node node("/yarp/icub");
 
@@ -152,29 +165,36 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    char buff[10];
+
+    // Handle interrupt for cleaning up
+    signal(SIGINT, signalHandler);
+
     // Control loop, sensory data stubbed
     while (true)
     {
-        Float64 adata;
+        // Float64 adata;
 
-        if (counter % PERIOD == 0)
-        {
-            adata.data = 1;
-        }
-        else
-        {
-            adata.data = 0;
-        }
+        // if (counter % PERIOD == 0)
+        // {
+        //     adata.data = 1;
+        // }
+        // else
+        // {
+        //     adata.data = 0;
+        // }
 
-        publisher.write(adata);
+        // publisher.write(adata);
 
         Float64 bdata;
         subscriber.read(bdata);
-        yCInfo(CONTROLLER) << "Received:" << bdata.data;
         
         float valueReceived = bdata.data;
-        printf("received number: %f", valueReceived);
-        printf("\n");
+        printf("%.2f %s", valueReceived, "\n");
+
+        snprintf(buff, sizeof(buff), "%.2f %s", valueReceived, "\n");
+        string buffAsStdStr = buff;
+        LogFile << buffAsStdStr;
 
         bool shouldRest = valueReceived < 240;
         pinch(pos, shouldRest);
@@ -186,14 +206,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
-// find_package(YARP COMPONENTS os rosmsg REQUIRED)
-// add_executable(ice_controller)
-// target_sources(ice_controller PRIVATE ice_controller.cpp)
-// target_link_libraries(
-// 	ice_controller 
-// 	PRIVATE 
-// 		YARP::YARP_os 
-// 		YARP::YARP_init 
-// 		YARP::YARP_rosmsg
-// )
