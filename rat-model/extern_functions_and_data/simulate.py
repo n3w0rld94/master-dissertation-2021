@@ -16,7 +16,6 @@ class Mixin7:
     def simulate(self, dt=0.1, lfp=False, seeds=None):
 
         self.buildSimConfig(dt=dt, lfp=lfp, seeds=seeds)
-
         sim.create(netParams=self.netParams, simConfig=self.simConfig)
 
         self.last_index_read = 0
@@ -28,7 +27,7 @@ class Mixin7:
         sim.runSimWithIntervalFunc(800, self.send_data)
 
 
-    def process_input_data(network, data):
+    def process_input_data(self, network, data):
         sensory_data = data.data
         stimulation = {
                 'conds':{'source':'Input_th'},
@@ -38,7 +37,7 @@ class Mixin7:
         print('Input data received' + str(sensory_data))
 
         if (sensory_data > 0.5):
-            stimulation['amp'] = 0.0012
+            stimulation['amp'] = 0.0016
             sim.net.modifyStims(stimulation)
         else:
             sim.net.modifyStims(stimulation)
@@ -47,17 +46,17 @@ class Mixin7:
     def send_data(self, time):
 
         cortex_spikes = [[],[],[],[],[],[],[],[],[],[]]
-        sim.gatherData()
+        sim.gatherData(False)
     
         num_spikes, cortex_spikes = self.count_and_store_cortex_spikes(cortex_spikes)
 
         self.last_index_read = len(sim.allSimData['spkid'])
         mean_firing_rate = num_spikes/self.num_of_cortex_cells
 
-        spike_variations_mean_across_cells = self.get_mean_spikes_variation(cortex_spikes)
+        mean_inter_spike_interval_across_cells = self.get_mean_inter_spikes_interval(cortex_spikes)
 
-        print('Data sent: ' + str(spike_variations_mean_across_cells))
-        self.pub.publish(Float64(data=spike_variations_mean_across_cells))
+        print('Data sent: ' + str(mean_inter_spike_interval_across_cells))
+        self.pub.publish(Float64(data=mean_inter_spike_interval_across_cells))
 
 
     def count_and_store_cortex_spikes(self, one_second_data):
@@ -76,25 +75,25 @@ class Mixin7:
         
         return num_spikes, one_second_data
 
-    def get_mean_spikes_variation(self, cortex_spikes):
-        spike_variations_means = np.zeros(10)
-        spike_variations = [[],[],[],[],[],[],[],[],[],[]]
+    def get_mean_inter_spikes_interval(self, cortex_spikes):
+        inter_spike_interval_means = np.zeros(10)
+        inter_spike_intervals = [[],[],[],[],[],[],[],[],[],[]]
         
         for i in range(0, self.num_of_cortex_cells):
             cell_spikes = cortex_spikes[i]
-            cell_spike_variations = spike_variations[i]
+            cell_inter_spike_variations = inter_spike_intervals[i]
 
             for j in range(1, len(cell_spikes)):
                 spike_variation = cell_spikes[j] - cell_spikes[j - 1]
-                cell_spike_variations.append(spike_variation)
+                cell_inter_spike_variations.append(spike_variation)
             
-            if len(cell_spike_variations) > 0:
-                spike_variations_means[i] = np.mean(cell_spike_variations)
+            if len(cell_inter_spike_variations) > 0:
+                inter_spike_interval_means[i] = np.mean(cell_inter_spike_variations)
             else:
-                spike_variations_means[i] = 0
+                inter_spike_interval_means[i] = 0
 
         # Calculate the mean values of cortex neurons
-        return np.mean(spike_variations_means)
+        return np.mean(inter_spike_interval_means)
 
     def is_spike_from_cortex(self, spike_id):
 

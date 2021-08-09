@@ -30,7 +30,7 @@ using yarp::rosmsg::std_msgs::String;
 namespace
 {
     YARP_LOG_COMPONENT(CONTROLLER, "icub.controller");
-    constexpr double loop_delay = 0.1;
+    constexpr double loop_delay = 0.3;
 }
 
 // Create and open a Log file
@@ -174,16 +174,7 @@ int main(int argc, char *argv[])
     while (true)
     {
         // Float64 adata;
-
-        // if (counter % PERIOD == 0)
-        // {
-        //     adata.data = 1;
-        // }
-        // else
-        // {
-        //     adata.data = 0;
-        // }
-
+        // adata.data = 1;
         // publisher.write(adata);
 
         Float64 bdata;
@@ -196,9 +187,9 @@ int main(int argc, char *argv[])
         string buffAsStdStr = buff;
         LogFile << buffAsStdStr;
 
-        bool shouldRest = valueReceived < 240;
-        pinch(pos, shouldRest);
-        counter++;
+        // bool shouldRest = valueReceived < 240;
+        // pinch(pos, shouldRest);
+        // counter++;
 
         /* wait some time to avoid flooding with messages */
         yarp::os::Time::delay(loop_delay);
