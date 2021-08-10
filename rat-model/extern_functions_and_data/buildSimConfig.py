@@ -15,7 +15,6 @@ class Mixin6:
         # simConfig = specs.SimConfig() I put it in the constructor of the class Network
         self.simConfig.duration = self.t_sim  # Duration of the simulation, in ms
         self.simConfig.dt = dt  # Internal integration timestep to use
-        self.simConfig.timing = False  # show timing  and save to file
         self.simConfig.verbose = False  # Show detailed messages
         self.simConfig.printPopAvgRates = False
 
