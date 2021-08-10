@@ -45,7 +45,6 @@ class Network(buildPopulationParameters.Mixin1, buildCellRules.Mixin2,
 
         ###################################
         # NETWORK PARAMETERS
-        seed = 3 # SEEDS TO USE: 3 7 9 5 1 - 4 6 2 8 10
         self.buildPopulationParameters()
         self.buildCellRules(seed)
         self.buildSynMechParams()
