@@ -1,5 +1,3 @@
-"""..."""
-
 # Last edition: 23 November 2020, Fernando Zuher
 # Refactored from: GenericBg.py, 06 May 2020
  
@@ -20,12 +18,10 @@ from extern_functions_and_data import buildStimParams, buildSimConfig, simulate
 class Network(buildPopulationParameters.Mixin1, buildCellRules.Mixin2,
   buildSynMechParams.Mixin3, buildStimParams.Mixin4, buildCellConnRules.Mixin5,
   buildSimConfig.Mixin6, simulate.Mixin7):
-    """???"""
 
-    def __init__(self, has_pd=0, it_num=1, dbs=0, t_sim=1000, seed=None):
+    def __init__(self, has_pd=0, dbs=0, t_sim=1000, seed=None):
 
         self.pd = has_pd # *** Toggles parkinson. 0 = false, 1 = true
-        self.it_num = it_num # *** ??? 
 
         # deep brain stimulation: In case you want to use DBS.
         # DBS is not used at the moment.
@@ -54,5 +50,5 @@ class Network(buildPopulationParameters.Mixin1, buildCellRules.Mixin2,
         self.buildCellRules(seed)
         self.buildSynMechParams()
         self.buildStimParams()
-        self.buildCellConnRules()
+        self.buildCellConnRules(seed)
         ###################################

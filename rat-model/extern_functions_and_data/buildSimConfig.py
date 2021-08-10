@@ -15,8 +15,9 @@ class Mixin6:
         # simConfig = specs.SimConfig() I put it in the constructor of the class Network
         self.simConfig.duration = self.t_sim  # Duration of the simulation, in ms
         self.simConfig.dt = dt  # Internal integration timestep to use
-        self.simConfig.verbose = True  # Show detailed messages
-        self.simConfig.printPopAvgRates = True
+        self.simConfig.timing = False  # show timing  and save to file
+        self.simConfig.verbose = False  # Show detailed messages
+        self.simConfig.printPopAvgRates = False
 
         if seeds is not None:
             self.simConfig.seeds = seeds
@@ -26,16 +27,19 @@ class Mixin6:
         # Dict with traces to record
         self.simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.5,'var':'v'}}
         self.simConfig.recordStep = 1  # Step size in ms to save data (eg. V traces, LFP, etc)
-        self.simConfig.recordCells = ['allCells']
+        self.simConfig.recordCells = ['all']
         self.simConfig.recordStim = True  # record spikes of cell stims
         self.simConfig.recordSpikesGids = True
 
         # Saving
-        estado = 'PARKINSONIANO_' if self.pd else 'SAUDÁVEL_'
-        self.simConfig.filename = estado # Set file output name
-        # self.simConfig.filename = 'output' # Set file output name
-        self.simConfig.saveFileStep = self.t_sim # step size in ms to save data to disk
-        self.simConfig.savePickle = False # Whether or not to write spikes etc. to a .mat file
+        model_state = 'PARKINSONIAN' if self.pd else 'HEALTHY'
+        self.simConfig.filename = model_state # Set file output name
+        self.simConfig.saveFileStep = self.t_sim/4 # step size in ms to save data to disk
+        # self.simConfig.savePickle = True # Whether or not to write spikes etc. to a .mat file
+        # self.simConfig.saveMat = True
+        # self.simConfig.saveTxt = True
+        # self.simConfig.saveJson = True
+
 
         #self.simConfig.analysis['plotRaster'] = {'saveFig': 'raster_80_neurons.png'} # True  # Plot raster
         #self.simConfig.analysis['plotRaster'] = {'saveFig': True} # True  # Plot raster

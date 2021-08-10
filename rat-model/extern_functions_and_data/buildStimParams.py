@@ -10,10 +10,9 @@ class Mixin4:
 
     def buildStimParams(self, amp_th=1.2e-3, amp_gpe=3e-3, amp_gpi=3e-3,
                     amp_stn=0, amp_fs=0, amp_rs=0, amp_dstr=0, amp_istr=0):
-        """Parâmetros da corrente elétrica externa aplicada à cada neurônio da
-                                                                    região."""
+        """Parameters for external electric current applied to each neuron."""
 
-        # flags de silenciamento
+        # Flags to silence specific regions of the model.
         bin_fs=bin_rs=bin_gpe=bin_gpi=bin_stn=bin_dstr=bin_istr=bin_th=0
 
         ############################################################################
