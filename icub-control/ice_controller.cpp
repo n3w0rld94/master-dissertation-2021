@@ -33,9 +33,6 @@ namespace
     constexpr double loop_delay = 0.3;
 }
 
-// Create and open a Log file
-ofstream LogFile("../../logs/filename.txt");
-
 Property getPolyDriverOptions()
 {
     Property options;
@@ -72,7 +69,7 @@ void pinch(IPositionControl *pos, bool rest = false)
     }
 }
 
-void wristFlexion(IPositionControl *pos, bool rest = false)
+void wristExtension(IPositionControl *pos, bool rest = false)
 {
     int wristPitchJoint = 5;
 
@@ -89,14 +86,7 @@ void wristFlexion(IPositionControl *pos, bool rest = false)
     }
 }
 
-void signalHandler( int signum ) {
-    cout << "Interrupt signal (" << signum << ") received.\n";
 
-    // Close the file
-    LogFile.close();
-
-    exit(signum);  
-}
 
 int main(int argc, char *argv[])
 {
@@ -165,11 +155,6 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    char buff[10];
-
-    // Handle interrupt for cleaning up
-    signal(SIGINT, signalHandler);
-
     // Control loop, sensory data stubbed
     while (true)
     {
@@ -181,15 +166,13 @@ int main(int argc, char *argv[])
         subscriber.read(bdata);
         
         float valueReceived = bdata.data;
-        printf("%.2f %s", valueReceived, "\n");
+        printf("%f %s", valueReceived, "\n");
 
-        snprintf(buff, sizeof(buff), "%.2f %s", valueReceived, "\n");
-        string buffAsStdStr = buff;
-        LogFile << buffAsStdStr;
-
-        // bool shouldRest = valueReceived < 240;
-        // pinch(pos, shouldRest);
-        // counter++;
+        if (valueReceived == "pinch"){
+            pinch(pos);
+        } else if (valueReceived == "wrist_extend"){
+            wristExtension(pos)
+        }
 
         /* wait some time to avoid flooding with messages */
         yarp::os::Time::delay(loop_delay);

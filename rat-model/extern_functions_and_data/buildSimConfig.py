@@ -8,7 +8,7 @@ from extern_functions_and_data import data
 
 class Mixin6:
 
-    def buildSimConfig(self, dt=0.1, lfp=False, seeds=None):
+    def buildSimConfig(self, dt=0.025, lfp=False, seeds=None):
         """Define tempos, intervalos de... Configuração da simulação"""
 
         # Simulation parameters
@@ -17,6 +17,7 @@ class Mixin6:
         self.simConfig.dt = dt  # Internal integration timestep to use
         self.simConfig.verbose = False  # Show detailed messages
         self.simConfig.printPopAvgRates = False
+        self.simConfig.gatherOnlySimData = True
 
         if seeds is not None:
             self.simConfig.seeds = seeds

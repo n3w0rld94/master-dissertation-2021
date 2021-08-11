@@ -6,17 +6,13 @@ from network import Network # neural network designed through netpyne, to be opt
 
 def main():
 
-    simulation_duration = 1000 * 20 # milliseconds
+    simulation_duration = 1000 * 1 # milliseconds 
 
-    has_pd = False
-    for i in range(1, 11):
-        net = Network(t_sim = simulation_duration, has_pd = has_pd, seed=i)
-        net.simulate(seed=i, has_pd = has_pd)
+    # net = Network(t_sim = simulation_duration, has_pd = False, seed=3)
+    # net.simulate(seed=3, has_pd = False)
 
-    has_pd = True
-    for i in range(1, 11):
-        net = Network(t_sim = simulation_duration, has_pd = has_pd, seed=i)
-        net.simulate(seed=i, has_pd= has_pd)
+    net = Network(t_sim = simulation_duration, has_pd = True, seed=3)
+    net.simulate(seed=3, has_pd= True)
 
 if __name__ == '__main__':
     main()

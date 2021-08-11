@@ -15,10 +15,10 @@ class Mixin7:
 
     # SEED 1: {'conn': 1111, 'stim': 1111, 'loc': 1111}
 
-    def simulate(self, dt=0.1, lfp=False, seed=None, has_pd= False): 
+    def simulate(self, dt=0.025, lfp=False, seed=None, has_pd= False): 
         step_size = 0.0002
-        steps = 25
-        current_stimulation = 0
+        steps = 1
+        current_stimulation = 0.0016
 
         stimulation = {
             'conds':{'source':'Input_th'},
@@ -36,8 +36,8 @@ class Mixin7:
         # self.pub = rospy.Publisher('rat_control_commands', Float64)
         # rospy.init_node('neural_model_rat', anonymous=False)
 
-        folder = 'parkinsonian' if has_pd else 'healthy'
-        filename = "logs/" + folder + "/stimulation-logs-"+ str(seed) + ".txt"
+        folder = 'Training/Parkinsonian' if has_pd else 'Training/Healthy'
+        filename = "logs/" + folder + "/stimulation-logs-complete-2-"+ str(seed) + ".txt"
         self.file_object = open(filename, 'a')
 
         for i in range(steps):
@@ -46,12 +46,11 @@ class Mixin7:
             stim_label = format(current_stimulation, '.4f')
             self.file_object.write('\n' + stim_label + ', ')
 
-            sim.runSimWithIntervalFunc(800, self.send_data)
+            sim.runSimWithIntervalFunc(300, self.send_data)
 
             current_stimulation += step_size
 
         self.file_object.close()
-
 
 
     def process_input_data(self, network, data):
