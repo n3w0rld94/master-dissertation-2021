@@ -16,9 +16,9 @@ class Mixin7:
     # SEED 1: {'conn': 1111, 'stim': 1111, 'loc': 1111}
 
     def simulate(self, dt=0.025, lfp=False, seed=None, has_pd= False): 
-        step_size = 0.0002
-        steps = 1
-        current_stimulation = 0.0016
+        step_size = 0.0010
+        steps = 5
+        current_stimulation = 0.0008
 
         stimulation = {
             'conds':{'source':'Input_th'},
