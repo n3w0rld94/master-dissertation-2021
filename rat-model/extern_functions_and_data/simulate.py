@@ -37,7 +37,7 @@ class Mixin7:
         # rospy.init_node('neural_model_rat', anonymous=False)
 
         folder = 'Training/Parkinsonian' if has_pd else 'Training/Healthy'
-        filename = "logs/" + folder + "/stimulation-logs-complete-2-"+ str(seed) + ".txt"
+        filename = "logs/" + folder + "/stimulation-logs-complete-last-"+ str(seed) + ".txt"
         self.file_object = open(filename, 'a')
 
         for i in range(steps):
